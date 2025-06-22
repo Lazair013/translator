@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In / Sign Up</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 50px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px 0 rgba(34, 48, 85, 0.06), 0 1.5px 5px 0 rgba(34,48,85,.03);
+            padding: 32px 28px 28px 28px;
+        }
+
+        h2, h3 {
+            margin-bottom: 18px;
+            font-weight: 600;
+            color: #263354;
+            letter-spacing: 0.03em;
+        }
+
+        label {
+            font-size: 0.97em;
+            color: #576482;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"], textarea {
+            width: 100%;
+            padding: 10px 12px;
+            margin: 7px 0 15px 0;
+            border: 1.5px solid #e1e5ee;
+            border-radius: 7px;
+            font-size: 1em;
+            background: #f8fafc;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #6787ff;
+            background: #fff;
+        }
+
+        textarea[readonly] {
+            background: #f5f5f5;
+            color: #334;
+        }
+
+        button {
+            padding: 9px 22px;
+            margin: 7px 6px 15px 0;
+            background: linear-gradient(90deg, #6787ff 45%, #495ce0 100%);
+            color: #fff;
+            font-weight: 500;
+            border: none;
+            border-radius: 7px;
+            box-shadow: 0 1.5px 5px 0 rgba(34,48,85,.03);
+            cursor: pointer;
+            transition: background 0.15s, transform 0.11s;
+            font-size: 1em;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #495ce0 45%, #6787ff 100%);
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        #authMsg, #regMsg {
+            color: #e26c7c;
+            margin: 0 0 8px 0;
+            font-size: 0.97em;
+        }
+
+        .block {
+            margin-bottom: 22px;
+        }
+
+        .history {
+            margin-top: 36px;
+        }
+        .history div {
+            background: #f8fafc;
+            border-radius: 7px;
+            padding: 10px 13px;
+            margin-bottom: 15px;
+            border-left: 3.5px solid #6787ff3b;
+            box-shadow: 0 1.5px 3px 0 rgba(34,48,85,.025);
+        }
+        .history b {
+            color: #495ce0;
+        }
+        .history small {
+            color: #8391b6;
+            font-size: 0.93em;
+            display: block;
+            margin-top: 4px;
+        }
+
+        ::-webkit-scrollbar {width:8px;}
+        ::-webkit-scrollbar-thumb {background:#e7eafd;border-radius:6px;}
+        ::-webkit-scrollbar-track {background:#f5f7fa;}
+
+        @media (max-width: 540px) {
+            .container { max-width: 98vw; padding: 14px 4vw 18px 4vw;}
+            h2 { font-size: 1.4em; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="authBlock">
+        <h2>Sign In</h2>
+        <input type="text" id="username" placeholder="Login"><br>
+        <input type="password" id="password" placeholder="Password"><br>
+        <button onclick="login()">Log in</button>
+        <button onclick="showRegister()">Sign Up</button>
+        <div id="authMsg"></div>
+    </div>
+    <div id="registerBlock" style="display:none;">
+        <h2>Sign Up</h2>
+        <input type="text" id="reg_username" placeholder="Login"><br>
+        <input type="password" id="reg_password" placeholder="Password"><br>
+        <button onclick="register()">Sign Up</button>
+        <button onclick="hideRegister()">Back</button>
+        <div id="regMsg"></div>
+    </div>
+    <!-- Основной интерфейс -->
+    <div id="mainBlock" style="display:none;">
+        <h2>Text Translator</h2>
+        <div class="block">
+            <label>Enter text:</label>
+            <textarea id="inputText"></textarea>
+            <button onclick="translateText()">Translate </button>
+        </div>
+        <div class="block">
+            <label>Result:</label>
+            <textarea id="outputText" readonly></textarea>
+        </div>
+        <button onclick="logout()">Log out</button>
+        <div class="history">
+            <h3>History</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+</div>
+<script>
+let token = localStorage.getItem('jwt_token') || '';
+let refresh = localStorage.getItem('jwt_refresh') || '';
+
+function setToken(access, refresh_token) {
+    token = access;
+    refresh = refresh_token;
+    if (access) localStorage.setItem('jwt_token', access);
+    else localStorage.removeItem('jwt_token');
+    if (refresh_token) localStorage.setItem('jwt_refresh', refresh_token);
+    else localStorage.removeItem('jwt_refresh');
+}
+
+function showRegister() {
+    document.getElementById('authBlock').style.display = 'none';
+    document.getElementById('registerBlock').style.display = '';
+}
+function hideRegister() {
+    document.getElementById('registerBlock').style.display = 'none';
+    document.getElementById('authBlock').style.display = '';
+}
+function showMain() {
+    document.getElementById('authBlock').style.display = 'none';
+    document.getElementById('registerBlock').style.display = 'none';
+    document.getElementById('mainBlock').style.display = '';
+}
+
+function login() {
+    let username = document.getElementById('username').value;
+    let password = document.getElementById('password').value;
+    fetch('/api/login/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password})
+    }).then(r=>r.json()).then(data=>{
+        if (data.access && data.refresh) {
+            setToken(data.access, data.refresh);
+            showMain();
+            loadHistory();
+        } else {
+            document.getElementById('authMsg').innerText = 'Ошибка входа';
+        }
+    });
+}
+
+function register() {
+    let username = document.getElementById('reg_username').value;
+    let password = document.getElementById('reg_password').value;
+    fetch('/api/register/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            username,
+            password
+        })
+    }).then(r=>r.json()).then(data=>{
+        if (data.id || data.username) {
+            autoLogin(username, password);
+        } else if (data.error) {
+            document.getElementById('regMsg').innerText = data.error;
+        } else {
+            document.getElementById('regMsg').innerText = 'Ошибка регистрации';
+        }
+    });
+}
+
+function autoLogin(username, password) {
+    fetch('/api/login/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password})
+    }).then(r=>r.json()).then(data=>{
+        if (data.access && data.refresh) {
+            setToken(data.access, data.refresh);
+            showMain();
+            loadHistory();
+        } else {
+            document.getElementById('authMsg').innerText = 'Ошибка автологина';
+        }
+    });
+}
+
+
+function logout() {
+    setToken('', '');
+    document.getElementById('mainBlock').style.display = 'none';
+    document.getElementById('authBlock').style.display = '';
+}
+
+// --- Новый универсальный запрос с авто-обновлением токена ---
+function apiRequest(url, options, onSuccess) {
+    fetch(url, options).then(res => {
+        if (res.status === 401) {
+            refreshToken(() => {
+                options.headers['Authorization'] = 'Bearer ' + localStorage.getItem('jwt_token');
+                fetch(url, options).then(r2 => r2.json()).then(onSuccess);
+            });
+        } else {
+            res.json().then(onSuccess);
+        }
+    });
+}
+
+function refreshToken(callback) {
+    let refresh_token = localStorage.getItem('jwt_refresh');
+    if (!refresh_token) {
+        logout();
+        return;
+    }
+    fetch('/api/token/refresh/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({refresh: refresh_token})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+        if (data.access) {
+            setToken(data.access, refresh_token);
+            if (callback) callback();
+        } else {
+            logout();
+        }
+    });
+}
+
+function translateText() {
+    const inputText = document.getElementById('inputText').value;
+    apiRequest('/api/translate/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ input_text: inputText })
+    }, data => {
+        document.getElementById('outputText').value = data.output_text || '';
+        loadHistory();
+    });
+}
+
+function loadHistory() {
+    apiRequest('/api/history/', {
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    }, data => {
+        let html = '';
+        (data.history || []).forEach(item => {
+            html += `<div>
+                <b>Ввод:</b> ${item.input_text}<br/>
+                <b>Результат:</b> ${item.output_text}<br/>
+                <small>${item.created_at}</small>
+                <hr/>
+            </div>`;
+        });
+        document.getElementById('historyList').innerHTML = html;
+    });
+}
+
+window.onload = function() {
+    if (token) {
+        showMain();
+        loadHistory();
+    } else {
+        document.getElementById('authBlock').style.display = '';
+    }
+}
+</script>
+</body>
+</html>
