@@ -1,28 +1,26 @@
-[project]
+[tool.poetry]
 name = "translator"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "oYPIo",email = "voice2of2reason@gmail.com"}
-]
-readme = "README.md"
-requires-python = ">=3.12,<3.13"
-dependencies = [
-    "notebook (>=7.4.3,<8.0.0)",
-    "ipykernel (>=6.29.5,<7.0.0)",
-    "torch @ https://download.pytorch.org/whl/cu118/torch-2.3.0%2Bcu118-cp312-cp312-linux_x86_64.whl",
-    "torchvision @ https://download.pytorch.org/whl/cu118/torchvision-0.18.0%2Bcu118-cp312-cp312-linux_x86_64.whl",
-    "torchaudio @ https://download.pytorch.org/whl/cu118/torchaudio-2.3.0%2Bcu118-cp312-cp312-linux_x86_64.whl",
-    "ydata-profiling (>=4.16.1,<5.0.0)",
-    "ipywidgets (>=8.1.7,<9.0.0)",
-    "scikit-learn (>=1.7.0,<2.0.0)",
-    "wandb (>=0.20.1,<0.21.0)",
-    "transformers (==4.38.0)",
-    "accelerate (>=0.27.0,<0.28.0)",
-    "datasets (>=2.14.5,<3.0.0)",
-    "evaluate (>=0.4.4,<0.5.0)",
-]
+authors = ["oYPIo <voice2of2reason@gmail.com>"]
+packages = [{include = "app"}]
 
+[tool.poetry.dependencies]
+python = "==3.11.*"
+notebook = ">=7.4.3,<8.0.0"
+ipykernel = ">=6.29.5,<7.0.0"
+torch = { url = "https://download.pytorch.org/whl/cu118/torch-2.3.0%2Bcu118-cp311-cp311-linux_x86_64.whl" }
+torchvision = { url = "https://download.pytorch.org/whl/cu118/torchvision-0.18.0%2Bcu118-cp311-cp311-linux_x86_64.whl" }
+torchaudio = { url = "https://download.pytorch.org/whl/cu118/torchaudio-2.3.0%2Bcu118-cp311-cp311-linux_x86_64.whl" }
+ydata-profiling = ">=4.16.1,<5.0.0"
+ipywidgets = ">=8.1.7,<9.0.0"
+scikit-learn = ">=1.7.0,<2.0.0"
+wandb = ">=0.20.1,<0.21.0"
+transformers = "==4.38.0"
+accelerate = ">=0.27.0,<0.28.0"
+datasets = ">=2.14.5,<3.0.0"
+evaluate = ">=0.4.4,<0.5.0"
+fastapi = ">=0.115.13,<0.116.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

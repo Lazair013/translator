@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "translator"
+version = "0.1.0"
+description = "Minimal translation API"
+authors = ["oYPIo <voice2of2reason@gmail.com>"]
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "==3.11.*"
+fastapi = "^0.115.0"
+transformers = "^4.38.0"
+
+[build-system]
+requires = ["poetry-core>=1.7.0"]
+build-backend = "poetry.core.masonry.api"
