@@ -26,15 +26,15 @@ services:
       - DJANGO_DB_USER=userdb
       - DJANGO_DB_PASSWORD=passworddb
     
-    model:
-      build: 
-        context: ./LLM
-        args:
-          MODEL_PATH: "models/bert-base-uncased/checkpoint-4000"
-      ports:
-        - "8080:80"
-      environment:
-        - APP_MODULE=main:app
+  model:
+    build: 
+      context: ./LLM
+      args:
+        MODEL_PATH: "models/bert-base-uncased/checkpoint-4000"
+    ports:
+      - "8080:80"
+    environment:
+      - APP_MODULE=main:app
 
 volumes:
   postgres_data:
