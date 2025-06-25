@@ -10,21 +10,35 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000
+      "
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      model:
+        condition: service_started
+
     environment:
       - DJANGO_DB_HOST=db
-      - DJANGO_DB_NAME=db
-      - DJANGO_DB_USER=userdb
-      - DJANGO_DB_PASSWORD=passworddb
+      - DJANGO_DB_NAME=mydb
+      - DJANGO_DB_USER=myuser
+      - DJANGO_DB_PASSWORD=mypassword
     
   model:
     build: 
@@ -32,9 +46,13 @@ services:
       args:
         MODEL_PATH: "models/bert-base-uncased/checkpoint-4000"
     ports:
-      - "8080:80"
+      - "8001:80"
     environment:
       - APP_MODULE=main:app
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    name: translator_net

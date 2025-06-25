@@ -15,5 +15,4 @@ async def predict(request: Request):
 
     pred = model.predict(data_dict['text'], n_labels=2)
     resp = ', '.join([f"{label['label']}: {label['score']}" for label in pred])
-    print('responce:', resp)
     return {"prediction": resp}

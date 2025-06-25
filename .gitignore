@@ -3,3 +3,5 @@ LLM/models
 LLM/wandb
 
 poetry.lock
+
+__pycache__

@@ -26,17 +26,3 @@ class Model():
         n_preds = preds[:n_labels]
 
         return [{'label': pred['label_name'], 'score': f'{pred["score"]:.3f}'} for pred in n_preds]
-
-# def load_model():
-#     return Model("./models/bert-base-uncased/checkpoint-14")
-
-# def examle():
-#     model = Model("./models/bert-base-uncased/checkpoint-14")
-
-#     texts = ['UwU', 'Please, put the gun down. Oh, God, I have kinds.', 'This is so stupid. Why me? ', 'I like the way it burns, the way people run']
-
-#     for text in texts:
-#         print('text:', text)
-#         pred = model.predict(text, n_labels=2)
-#         resp = ', '.join([f"{label['label']}: {label['score']}" for label in pred])
-#         print('responce:', resp)

@@ -242,7 +242,6 @@ function logout() {
     document.getElementById('authBlock').style.display = '';
 }
 
-// --- Новый универсальный запрос с авто-обновлением токена ---
 function apiRequest(url, options, onSuccess) {
     fetch(url, options).then(res => {
         if (res.status === 401) {

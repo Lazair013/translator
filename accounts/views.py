@@ -1,4 +1,5 @@
 from functools import wraps
+import requests
 
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -24,9 +25,9 @@ class RegisterView(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
         if not username or not password:
-            return Response({'error': 'Заполните все поля'}, status=400)
+            return Response({'error': 'Заповніть усі рядки'}, status=400)
         if User.objects.filter(username=username).exists():
-            return Response({'error': 'Пользователь уже есть'}, status=400)
+            return Response({'error': 'Користувач вже існує'}, status=400)
         user = User.objects.create_user(username=username, password=password)
         return Response({'username': user.username, 'id': user.id})
 
@@ -49,7 +50,25 @@ class TranslateView(APIView):
 
     def post(self, request):
         input_text = request.data.get('input_text')
-        output_text = input_text[::-1] if input_text else ''
+
+        # output_text = input_text[::-1] if input_text else ''
+        output_text = ""
+
+        if input_text:
+            try:
+                # Call the model API
+                response = requests.post(
+                    "http://model:80/predict",
+                    json={"text": input_text},
+                    timeout=5
+                )
+                response.raise_for_status()
+                output_text = response.json().get("prediction", "")
+
+            except requests.RequestException as e:
+                return Response({"error": f"Model API request failed: {str(e)}"}, status=502)
+
+
         TranslationHistory.objects.create(
             user=request.user,
             input_text=input_text,
